@@ -11,6 +11,8 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        'puzzle-color': 'var(--puzzle-color)',
+        primary: '#3490dc',
       },
     },
   },
