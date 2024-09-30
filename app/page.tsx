@@ -8,9 +8,7 @@ import { FaGithub, FaEnvelope } from 'react-icons/fa';
 export default function HomePage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-center mb-4">你好，欢迎来到無名小栈</h1>
-      <p className="text-center text-gray-600 mb-8">这瓜多少钱一斤？</p>
-
+      <h1 className="text-3xl font-bold text-center mb-4">你好，欢迎来到Zorth的博客</h1>
       <div className="flex flex-wrap -mx-4">
         {/* 左侧主要内容区 */}
         <MainContent posts={[]} />
@@ -20,8 +18,8 @@ export default function HomePage() {
           <div className="bg-indigo-600 text-white p-6 rounded-lg mb-6">
             <div className="text-center mb-4">
               <div className="w-24 h-24 bg-white rounded-full mx-auto mb-2"></div>
-              <h2 className="text-xl font-bold">無名</h2>
-              <p className="text-sm">分享技术与科技生活</p>
+              <h2 className="text-xl font-bold">Zorth</h2>
+              <p className="text-sm">爱与自由</p>
             </div>
             <div className="flex justify-center space-x-4">
               <a href="#" className="hover:text-gray-200"><FaGithub size={24} /></a>
