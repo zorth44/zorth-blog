@@ -87,7 +87,7 @@ const Calendar = () => {
 
   return (
     <div 
-      className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl shadow-lg p-6 flex items-stretch w-full max-w-md mx-auto font-sans"
+      className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl shadow-lg p-6 flex items-stretch w-full mx-auto font-sans"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >

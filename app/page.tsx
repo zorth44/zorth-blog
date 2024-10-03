@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import MainContent from '../components/MainContent';
 import Calendar from '../components/Calendar';
-import { FaGithub, FaEnvelope } from 'react-icons/fa';
-
+import AnimatedProfileCard from '../components/AnimatedProfileCard';
 export default function HomePage() {
   return (
     <div className="container mx-auto px-4 py-8">
@@ -15,16 +14,8 @@ export default function HomePage() {
 
         {/* 右侧侧边栏 */}
         <div className="w-full lg:w-1/3 px-4 mt-8 lg:mt-0">
-          <div className="bg-indigo-600 text-white p-6 rounded-lg mb-6">
-            <div className="text-center mb-4">
-              <div className="w-24 h-24 bg-white rounded-full mx-auto mb-2"></div>
-              <h2 className="text-xl font-bold">Zorth</h2>
-              <p className="text-sm">爱与自由</p>
-            </div>
-            <div className="flex justify-center space-x-4">
-              <a href="#" className="hover:text-gray-200"><FaGithub size={24} /></a>
-              <a href="#" className="hover:text-gray-200"><FaEnvelope size={24} /></a>
-            </div>
+        <div className="mb-6">
+            <AnimatedProfileCard />
           </div>
 
           <div className="mb-6">
