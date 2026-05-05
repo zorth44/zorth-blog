@@ -1,0 +1,190 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+export async function getStaticPaths({ paginate }: { paginate: Function }) {
+  const posts = await getCollection('posts', ({ data }: { data: { draft: boolean } }) => !data.draft);
+  posts.sort((a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  return paginate(posts, { pageSize: 10 });
+}
+
+const { page } = Astro.props as any;
+const isFirstPage = page.currentPage === 1;
+
+// Collect unique tags from current page's posts
+const allTags: string[] = [...new Set(
+  page.data.flatMap((post: any) => post.data.tags as string[])
+)].sort();
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+  }).toUpperCase();
+}
+
+function pad(n: number) {
+  return String(n).padStart(2, '0');
+}
+---
+
+<BaseLayout title="ZORTH">
+  {isFirstPage && (
+    <section class="mb-12 pb-12" style="border-bottom: 1px solid var(--border);">
+      <h1
+        class="text-5xl md:text-6xl leading-tight mb-6"
+        style="font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 700; color: var(--text);"
+      >
+        日拱一卒，<br />功不唐捐。
+      </h1>
+      <p class="text-base max-w-xl leading-relaxed" style="color: var(--text-muted);">
+        分享技术探索、阅读笔记和生活随笔。持续更新中。
+      </p>
+    </section>
+  )}
+
+  <section>
+    {/* Tag filter bar */}
+    <div class="flex flex-wrap gap-2 mb-8">
+      <button
+        data-tag=""
+        class="tag-btn text-xs px-3 py-1 rounded-full transition-colors"
+        style="background-color: var(--text); color: var(--bg); border: 1px solid var(--text);"
+      >
+        全部
+      </button>
+      {allTags.map((tag) => (
+        <button
+          data-tag={tag}
+          class="tag-btn text-xs px-3 py-1 rounded-full transition-colors"
+          style="background-color: transparent; color: var(--text-muted); border: 1px solid var(--border);"
+        >
+          {tag}
+        </button>
+      ))}
+    </div>
+
+    <ul id="post-list" class="space-y-0">
+      {page.data.map((post: any, i: number) => {
+        const globalIndex = (page.currentPage - 1) * 10 + i + 1;
+        return (
+          <li data-tags={post.data.tags.join(',')} style="border-top: 1px solid var(--border);">
+            <a
+              href={`/posts/${post.id}/`}
+              class="flex gap-6 py-6 group"
+              style="text-decoration: none;"
+            >
+              <span
+                class="text-sm font-mono pt-0.5 flex-shrink-0 w-6"
+                style="color: var(--text-muted);"
+              >
+                {pad(globalIndex)}
+              </span>
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-1">
+                  <h2
+                    class="text-base font-semibold leading-snug group-hover:opacity-70 transition-opacity"
+                    style="color: var(--text);"
+                  >
+                    {post.data.title}
+                  </h2>
+                  <time
+                    class="text-xs flex-shrink-0 font-mono"
+                    datetime={post.data.pubDate.toISOString()}
+                    style="color: var(--text-muted);"
+                  >
+                    {formatDate(post.data.pubDate)}
+                  </time>
+                </div>
+                {post.data.description && (
+                  <p class="text-sm leading-relaxed mb-2 line-clamp-2" style="color: var(--text-muted);">
+                    {post.data.description}
+                  </p>
+                )}
+                {post.data.tags.length > 0 && (
+                  <div class="flex flex-wrap gap-2">
+                    {post.data.tags.map((tag: string) => (
+                      <span
+                        class="text-xs px-1.5 py-0.5 rounded"
+                        style="background-color: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border);"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+
+    {(page.url.prev || page.url.next) && (
+      <div id="pagination" class="mt-8 pt-6 flex items-center justify-between text-sm" style="border-top: 1px solid var(--border);">
+        <div>
+          {page.url.prev ? (
+            <a href={page.url.prev} style="color: var(--text-muted);" class="hover:opacity-70 transition-opacity">
+              &larr; 上一页
+            </a>
+          ) : (
+            <span style="color: var(--border);">&larr; 上一页</span>
+          )}
+        </div>
+        <span class="text-xs font-mono" style="color: var(--text-muted);">
+          {page.currentPage} / {page.lastPage}
+        </span>
+        <div>
+          {page.url.next ? (
+            <a href={page.url.next} style="color: var(--text-muted);" class="hover:opacity-70 transition-opacity">
+              下一页 &rarr;
+            </a>
+          ) : (
+            <span style="color: var(--border);">下一页 &rarr;</span>
+          )}
+        </div>
+      </div>
+    )}
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    const buttons = document.querySelectorAll('.tag-btn');
+    const items = document.querySelectorAll('#post-list li');
+    const pagination = document.getElementById('pagination');
+
+    const activeStyle = { bg: 'var(--text)', fg: 'var(--bg)', border: 'var(--text)' };
+    const inactiveStyle = { bg: 'transparent', fg: 'var(--text-muted)', border: 'var(--border)' };
+
+    function applyBtnStyle(btn, active) {
+      const s = active ? activeStyle : inactiveStyle;
+      btn.style.backgroundColor = s.bg;
+      btn.style.color = s.fg;
+      btn.style.borderColor = s.border;
+    }
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const tag = btn.getAttribute('data-tag');
+
+        buttons.forEach(function (b) { applyBtnStyle(b, false); });
+        applyBtnStyle(btn, true);
+
+        let visibleCount = 0;
+        items.forEach(function (item) {
+          const tags = item.getAttribute('data-tags') || '';
+          const match = !tag || tags.split(',').includes(tag);
+          item.style.display = match ? '' : 'none';
+          if (match) visibleCount++;
+        });
+
+        // Hide pagination when a tag filter is active
+        if (pagination) {
+          pagination.style.display = tag ? 'none' : '';
+        }
+      });
+    });
+  })();
+</script>

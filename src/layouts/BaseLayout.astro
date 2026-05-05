@@ -1,0 +1,113 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonicalURL?: string;
+}
+
+const { title, description, canonicalURL } = Astro.props;
+const siteName = 'ZORTH';
+const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
+const siteURL = Astro.site?.toString() ?? '';
+const canonical = canonicalURL ?? new URL(Astro.url.pathname, siteURL).toString();
+const metaDescription = description ?? 'ZORTH — 个人博客，分享技术与随笔。';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={metaDescription} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet" />
+
+    <script is:inline>
+      (function () {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen flex flex-col" style="background-color: var(--bg); color: var(--text);">
+    <header style="border-bottom: 1px solid var(--border);">
+      <div class="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a
+          href="/1/"
+          class="text-lg font-bold tracking-widest uppercase"
+          style="color: var(--text);"
+        >
+          ZORTH
+        </a>
+        <div class="flex items-center gap-5">
+          <a
+            href="/about/"
+            class="text-sm tracking-wide"
+            style="color: var(--text-muted);"
+          >
+            关于
+          </a>
+          <button
+            id="theme-toggle"
+            aria-label="切换主题"
+            class="w-8 h-8 flex items-center justify-center rounded-full transition-colors"
+            style="border: 1px solid var(--border); color: var(--text-muted);"
+          >
+            <span id="theme-icon-sun" class="hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            </span>
+            <span id="theme-icon-moon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-3xl mx-auto w-full px-6 py-10">
+      <slot />
+    </main>
+
+    <footer style="border-top: 1px solid var(--border);">
+      <div class="max-w-3xl mx-auto px-6 py-4 text-sm" style="color: var(--text-muted);">
+        &copy; {new Date().getFullYear()} ZORTH
+      </div>
+    </footer>
+
+    <script is:inline>
+      const toggle = document.getElementById('theme-toggle');
+      const sun = document.getElementById('theme-icon-sun');
+      const moon = document.getElementById('theme-icon-moon');
+
+      function syncIcons() {
+        const isDark = document.documentElement.classList.contains('dark');
+        sun.classList.toggle('hidden', !isDark);
+        moon.classList.toggle('hidden', isDark);
+      }
+
+      syncIcons();
+
+      toggle.addEventListener('click', function () {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        syncIcons();
+      });
+    </script>
+  </body>
+</html>

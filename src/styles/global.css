@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --bg: #f7f4ef;
+    --bg-card: #f0ece4;
+    --text: #1c1c1c;
+    --text-muted: #888880;
+    --border: #ddd8ce;
+    --accent: #c0392b;
+  }
+  html.dark {
+    --bg: #141414;
+    --bg-card: #1e1e1e;
+    --text: #ece8e1;
+    --text-muted: #7a7570;
+    --border: #2c2c2c;
+    --accent: #e05a4e;
+  }
+  html {
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}

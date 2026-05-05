@@ -1,0 +1,29 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }: { data: { draft: boolean } }) => !data.draft);
+  return posts.map((post: any) => ({
+    params: { slug: post.id },
+    props: { id: post.id },
+  }));
+}
+
+const { id } = Astro.props as { id: string };
+const entry = await getEntry('posts', id);
+if (!entry) return Astro.redirect('/1/');
+
+const { Content } = await render(entry);
+const { title, description, pubDate, updatedDate, tags } = entry.data;
+---
+
+<PostLayout
+  title={title}
+  description={description}
+  pubDate={pubDate}
+  updatedDate={updatedDate}
+  tags={tags}
+>
+  <Content />
+</PostLayout>
