@@ -11,11 +11,6 @@ export async function getStaticPaths({ paginate }: { paginate: Function }) {
 const { page } = Astro.props as any;
 const isFirstPage = page.currentPage === 1;
 
-// Collect unique tags from current page's posts
-const allTags: string[] = [...new Set(
-  page.data.flatMap((post: any) => post.data.tags as string[])
-)].sort();
-
 function formatDate(date: Date) {
   return date.toLocaleDateString('en-US', {
     month: 'short',
@@ -45,31 +40,11 @@ function pad(n: number) {
   )}
 
   <section>
-    {/* Tag filter bar */}
-    <div class="flex flex-wrap gap-2 mb-8">
-      <button
-        data-tag=""
-        class="tag-btn text-xs px-3 py-1 rounded-full transition-colors"
-        style="background-color: var(--text); color: var(--bg); border: 1px solid var(--text);"
-      >
-        全部
-      </button>
-      {allTags.map((tag) => (
-        <button
-          data-tag={tag}
-          class="tag-btn text-xs px-3 py-1 rounded-full transition-colors"
-          style="background-color: transparent; color: var(--text-muted); border: 1px solid var(--border);"
-        >
-          {tag}
-        </button>
-      ))}
-    </div>
-
     <ul id="post-list" class="space-y-0">
       {page.data.map((post: any, i: number) => {
         const globalIndex = (page.currentPage - 1) * 10 + i + 1;
         return (
-          <li data-tags={post.data.tags.join(',')} style="border-top: 1px solid var(--border);">
+          <li style="border-top: 1px solid var(--border);">
             <a
               href={`/posts/${post.id}/`}
               class="flex gap-6 py-6 group"
@@ -101,18 +76,6 @@ function pad(n: number) {
                   <p class="text-sm leading-relaxed mb-2 line-clamp-2" style="color: var(--text-muted);">
                     {post.data.description}
                   </p>
-                )}
-                {post.data.tags.length > 0 && (
-                  <div class="flex flex-wrap gap-2">
-                    {post.data.tags.map((tag: string) => (
-                      <span
-                        class="text-xs px-1.5 py-0.5 rounded"
-                        style="background-color: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border);"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 )}
               </div>
             </a>
@@ -149,42 +112,3 @@ function pad(n: number) {
   </section>
 </BaseLayout>
 
-<script is:inline>
-  (function () {
-    const buttons = document.querySelectorAll('.tag-btn');
-    const items = document.querySelectorAll('#post-list li');
-    const pagination = document.getElementById('pagination');
-
-    const activeStyle = { bg: 'var(--text)', fg: 'var(--bg)', border: 'var(--text)' };
-    const inactiveStyle = { bg: 'transparent', fg: 'var(--text-muted)', border: 'var(--border)' };
-
-    function applyBtnStyle(btn, active) {
-      const s = active ? activeStyle : inactiveStyle;
-      btn.style.backgroundColor = s.bg;
-      btn.style.color = s.fg;
-      btn.style.borderColor = s.border;
-    }
-
-    buttons.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        const tag = btn.getAttribute('data-tag');
-
-        buttons.forEach(function (b) { applyBtnStyle(b, false); });
-        applyBtnStyle(btn, true);
-
-        let visibleCount = 0;
-        items.forEach(function (item) {
-          const tags = item.getAttribute('data-tags') || '';
-          const match = !tag || tags.split(',').includes(tag);
-          item.style.display = match ? '' : 'none';
-          if (match) visibleCount++;
-        });
-
-        // Hide pagination when a tag filter is active
-        if (pagination) {
-          pagination.style.display = tag ? 'none' : '';
-        }
-      });
-    });
-  })();
-</script>
